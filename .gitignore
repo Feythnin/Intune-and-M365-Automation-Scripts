@@ -1,0 +1,29 @@
+# Logs
+*.log
+logs/
+
+# Reports and exports
+reports/
+*.csv
+!examples/*.csv
+
+# Credentials and secrets
+*.env
+credentials.json
+*.pfx
+*.pem
+
+# PowerShell module cache
+PSModules/
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# IDE / editor
+.vscode/
+*.swp
+*~
+
+# Claude Code
+.claude/
