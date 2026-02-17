@@ -4,7 +4,7 @@ A collection of PowerShell scripts for managing and automating Microsoft Intune 
 
 ## Why This Exists
 
-Clicking through the Intune portal works fine for one device. It doesn't work when you're managing hundreds of endpoints across multiple organizations. These scripts automate the repetitive tasks that eat up an admin's day — compliance reporting, stale device cleanup, app deployment tracking, and Autopilot management.
+Clicking through the Intune portal works fine for one device. It doesn't work when you're managing hundreds of endpoints across multiple organizations. These scripts automate the repetitive tasks that eat up an admin's day — compliance reporting, stale device cleanup, app deployment tracking, configuration profile auditing, patch compliance, encryption status, and Autopilot management.
 
 ## Requirements
 
@@ -14,9 +14,8 @@ Clicking through the Intune portal works fine for one device. It doesn't work wh
 
 ```powershell
 # Install the Graph modules you'll need
-Install-Module Microsoft.Graph.Intune -Scope CurrentUser
-Install-Module Microsoft.Graph.DeviceManagement -Scope CurrentUser
 Install-Module Microsoft.Graph.Authentication -Scope CurrentUser
+Install-Module Microsoft.Graph.DeviceManagement -Scope CurrentUser
 ```
 
 ## Scripts
@@ -29,6 +28,11 @@ Install-Module Microsoft.Graph.Authentication -Scope CurrentUser
 | `Remove-StaleDevices.ps1` | Removes or retires stale devices with safety checks and logging |
 | `Get-AutopilotStatus.ps1` | Reports on Autopilot deployment profile assignments and enrollment status |
 | `Export-DeviceInventory.ps1` | Exports full device inventory with hardware details to CSV |
+| `Get-ConfigProfileReport.ps1` | Reports on configuration profile assignments and per-device status |
+| `Get-WindowsUpdateCompliance.ps1` | Reports on Windows OS versions, patch status, and update compliance |
+| `Get-BitLockerStatus.ps1` | Reports on BitLocker encryption status and recovery key escrow |
+| `Get-RemediationStatus.ps1` | Reports on proactive remediation script execution results |
+| `Get-AppProtectionReport.ps1` | Reports on app protection (MAM) policy assignments and compliance |
 
 ## Usage
 
@@ -37,7 +41,7 @@ Install-Module Microsoft.Graph.Authentication -Scope CurrentUser
 All scripts require an authenticated Graph session. Connect first:
 
 ```powershell
-Connect-MgGraph -Scopes "DeviceManagementManagedDevices.ReadWrite.All", "DeviceManagementConfiguration.Read.All"
+Connect-MgGraph -Scopes "DeviceManagementManagedDevices.ReadWrite.All", "DeviceManagementConfiguration.Read.All", "DeviceManagementApps.Read.All", "DeviceManagementServiceConfig.Read.All", "BitLockerKey.Read.All"
 ```
 
 ### Find Stale Devices
@@ -92,6 +96,59 @@ Connect-MgGraph -Scopes "DeviceManagementManagedDevices.ReadWrite.All", "DeviceM
 .\scripts\Remove-StaleDevices.ps1 -InactiveDays 90 -Action Delete -LogPath ".\logs\cleanup.log"
 ```
 
+### Configuration Profile Status
+
+```powershell
+# All configuration profiles
+.\scripts\Get-ConfigProfileReport.ps1
+
+# Filter by profile name
+.\scripts\Get-ConfigProfileReport.ps1 -ProfileName "Wi-Fi"
+
+# Only show errors
+.\scripts\Get-ConfigProfileReport.ps1 -StatusFilter "Error" -ExportPath ".\reports\profile-errors.csv"
+```
+
+### Windows Update Compliance
+
+```powershell
+# OS version distribution
+.\scripts\Get-WindowsUpdateCompliance.ps1
+
+# Flag devices below a minimum build
+.\scripts\Get-WindowsUpdateCompliance.ps1 -MinBuild "10.0.22631.3007" -ExportPath ".\reports\updates.csv"
+```
+
+### BitLocker Encryption Status
+
+```powershell
+# Full encryption report
+.\scripts\Get-BitLockerStatus.ps1
+
+# Only show unencrypted devices
+.\scripts\Get-BitLockerStatus.ps1 -UnencryptedOnly -ExportPath ".\reports\unencrypted.csv"
+```
+
+### Proactive Remediation Status
+
+```powershell
+# All remediation scripts
+.\scripts\Get-RemediationStatus.ps1
+
+# Filter by script name
+.\scripts\Get-RemediationStatus.ps1 -ScriptName "Stale certs" -ExportPath ".\reports\remediation.csv"
+```
+
+### App Protection Policies
+
+```powershell
+# All app protection policies
+.\scripts\Get-AppProtectionReport.ps1
+
+# Filter by platform
+.\scripts\Get-AppProtectionReport.ps1 -Platform "iOS" -ExportPath ".\reports\app-protection.csv"
+```
+
 ## Project Structure
 
 ```
@@ -102,7 +159,12 @@ intune-automation-toolkit/
 │   ├── Get-AppDeploymentStatus.ps1
 │   ├── Remove-StaleDevices.ps1
 │   ├── Get-AutopilotStatus.ps1
-│   └── Export-DeviceInventory.ps1
+│   ├── Export-DeviceInventory.ps1
+│   ├── Get-ConfigProfileReport.ps1
+│   ├── Get-WindowsUpdateCompliance.ps1
+│   ├── Get-BitLockerStatus.ps1
+│   ├── Get-RemediationStatus.ps1
+│   └── Get-AppProtectionReport.ps1
 ├── docs/
 │   └── SETUP.md
 ├── examples/

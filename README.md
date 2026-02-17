@@ -42,6 +42,11 @@ Scripts for device management, compliance reporting, and endpoint lifecycle auto
 | [`Remove-StaleDevices.ps1`](intune-automation-toolkit/scripts/Remove-StaleDevices.ps1) | Removes or retires stale devices with safety checks and logging |
 | [`Get-AutopilotStatus.ps1`](intune-automation-toolkit/scripts/Get-AutopilotStatus.ps1) | Reports on Autopilot deployment profile assignments and enrollment status |
 | [`Export-DeviceInventory.ps1`](intune-automation-toolkit/scripts/Export-DeviceInventory.ps1) | Exports full device inventory with hardware details to CSV |
+| [`Get-ConfigProfileReport.ps1`](intune-automation-toolkit/scripts/Get-ConfigProfileReport.ps1) | Reports on configuration profile assignments and per-device status |
+| [`Get-WindowsUpdateCompliance.ps1`](intune-automation-toolkit/scripts/Get-WindowsUpdateCompliance.ps1) | Reports on Windows OS versions, patch status, and update compliance |
+| [`Get-BitLockerStatus.ps1`](intune-automation-toolkit/scripts/Get-BitLockerStatus.ps1) | Reports on BitLocker encryption status and recovery key escrow |
+| [`Get-RemediationStatus.ps1`](intune-automation-toolkit/scripts/Get-RemediationStatus.ps1) | Reports on proactive remediation script execution results |
+| [`Get-AppProtectionReport.ps1`](intune-automation-toolkit/scripts/Get-AppProtectionReport.ps1) | Reports on app protection (MAM) policy assignments and compliance |
 
 ### M365 Administration Scripts
 

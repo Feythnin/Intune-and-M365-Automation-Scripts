@@ -28,11 +28,16 @@ The account you authenticate with needs appropriate roles. At minimum:
 | Script | Required Permission |
 |--------|-------------------|
 | Get-StaleDevices | DeviceManagementManagedDevices.Read.All |
-| Get-ComplianceReport | DeviceManagementManagedDevices.Read.All |
+| Get-ComplianceReport | DeviceManagementManagedDevices.Read.All, DeviceManagementConfiguration.Read.All |
 | Get-AppDeploymentStatus | DeviceManagementApps.Read.All |
 | Remove-StaleDevices | DeviceManagementManagedDevices.ReadWrite.All |
 | Get-AutopilotStatus | DeviceManagementServiceConfig.Read.All |
 | Export-DeviceInventory | DeviceManagementManagedDevices.Read.All |
+| Get-ConfigProfileReport | DeviceManagementConfiguration.Read.All |
+| Get-WindowsUpdateCompliance | DeviceManagementManagedDevices.Read.All, DeviceManagementConfiguration.Read.All |
+| Get-BitLockerStatus | DeviceManagementManagedDevices.Read.All, BitLockerKey.Read.All |
+| Get-RemediationStatus | DeviceManagementConfiguration.Read.All, DeviceManagementManagedDevices.Read.All |
+| Get-AppProtectionReport | DeviceManagementApps.Read.All, DeviceManagementConfiguration.Read.All |
 
 For MSP environments, you'll typically need Intune Administrator or a custom role with the above permissions in each client tenant.
 
@@ -41,7 +46,7 @@ For MSP environments, you'll typically need Intune Administrator or a custom rol
 ### Single Tenant
 
 ```powershell
-Connect-MgGraph -Scopes "DeviceManagementManagedDevices.ReadWrite.All", "DeviceManagementConfiguration.Read.All", "DeviceManagementApps.Read.All", "DeviceManagementServiceConfig.Read.All"
+Connect-MgGraph -Scopes "DeviceManagementManagedDevices.ReadWrite.All", "DeviceManagementConfiguration.Read.All", "DeviceManagementApps.Read.All", "DeviceManagementServiceConfig.Read.All", "BitLockerKey.Read.All"
 ```
 
 ### Multi-Tenant (MSP)
