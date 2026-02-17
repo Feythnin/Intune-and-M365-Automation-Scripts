@@ -1,10 +1,10 @@
 # 📧 M365 Administration Scripts
 
-A collection of PowerShell scripts for managing Microsoft 365 environments, focused on Exchange Online, licensing, and Entra ID administration. Built for sysadmins and MSP engineers who need to manage M365 tenants efficiently.
+A collection of PowerShell scripts for managing Microsoft 365 environments, covering Exchange Online, licensing, Entra ID, Teams governance, security posture, and user lifecycle management. Built for sysadmins and MSP engineers who need to manage M365 tenants efficiently.
 
 ## Why This Exists
 
-M365 admin tasks are repetitive and error-prone when done manually through the portal. These scripts automate the most common workflows — mailbox auditing, license reporting, bulk user operations, and shared mailbox management — so you can manage tenants in minutes instead of hours.
+M365 admin tasks are repetitive and error-prone when done manually through the portal. These scripts automate the most common workflows — mailbox auditing, license reporting, MFA compliance, Conditional Access documentation, Teams governance, bulk user operations, and offboarding — so you can manage tenants in minutes instead of hours.
 
 ## Requirements
 
@@ -16,6 +16,10 @@ M365 admin tasks are repetitive and error-prone when done manually through the p
 Install-Module ExchangeOnlineManagement -Scope CurrentUser
 Install-Module Microsoft.Graph.Users -Scope CurrentUser
 Install-Module Microsoft.Graph.Identity.DirectoryManagement -Scope CurrentUser
+Install-Module Microsoft.Graph.Reports -Scope CurrentUser
+Install-Module Microsoft.Graph.Groups -Scope CurrentUser
+Install-Module Microsoft.Graph.Identity.SignIns -Scope CurrentUser
+Install-Module Microsoft.Graph.Identity.Governance -Scope CurrentUser
 ```
 
 ## Scripts
@@ -28,6 +32,14 @@ Install-Module Microsoft.Graph.Identity.DirectoryManagement -Scope CurrentUser
 | `New-BulkUserOnboard.ps1` | Onboards users from CSV — creates accounts, assigns licenses, adds to groups |
 | `Get-InactiveUserReport.ps1` | Finds users who haven't signed in within a configurable threshold |
 | `Get-TransportRuleReport.ps1` | Documents all Exchange transport rules with conditions and actions |
+| `Get-ServiceHealthDashboard.ps1` | Displays M365 service health status with active incidents and advisories |
+| `Get-MFAStatusReport.ps1` | Reports on MFA registration status with method breakdown per user |
+| `Get-GuestAccessAudit.ps1` | Audits guest users with sign-in activity and staleness detection |
+| `Get-AdminRoleReport.ps1` | Reports on Entra ID admin role assignments with MFA and PIM status |
+| `Get-ConditionalAccessReport.ps1` | Documents all Conditional Access policies with conditions and grants |
+| `Export-ConditionalAccessBackup.ps1` | Exports Conditional Access policies as individual JSON backup files |
+| `Get-TeamsGovernanceReport.ps1` | Reports on Teams governance — ownership, activity, and guest access |
+| `Invoke-UserOffboard.ps1` | Offboards users — disables accounts, revokes sessions, reclaims licenses |
 
 ## Usage
 
@@ -40,7 +52,7 @@ Most scripts need Exchange Online, Graph, or both:
 Connect-ExchangeOnline -UserPrincipalName admin@contoso.com
 
 # Microsoft Graph
-Connect-MgGraph -Scopes "User.Read.All", "Directory.Read.All", "AuditLog.Read.All"
+Connect-MgGraph -Scopes "User.Read.All", "User.ReadWrite.All", "Directory.Read.All", "Directory.ReadWrite.All", "AuditLog.Read.All", "ServiceHealth.Read.All", "UserAuthenticationMethod.Read.All", "Policy.Read.All", "RoleManagement.Read.Directory", "Group.Read.All", "Group.ReadWrite.All", "Reports.Read.All", "TeamSettings.Read.All"
 ```
 
 ### Audit Shared Mailboxes
@@ -112,6 +124,88 @@ Bob Lee,blee@contoso.com,Bob,Lee,Engineering,Developer
 .\scripts\Get-InactiveUserReport.ps1 -InactiveDays 90 -ExportPath ".\reports\inactive.csv"
 ```
 
+### Service Health Dashboard
+
+```powershell
+# Check all M365 service health
+.\scripts\Get-ServiceHealthDashboard.ps1
+
+# Filter to Exchange issues
+.\scripts\Get-ServiceHealthDashboard.ps1 -ServiceFilter "Exchange"
+
+# Include resolved issues
+.\scripts\Get-ServiceHealthDashboard.ps1 -ShowResolved -ExportPath ".\reports\health.csv"
+```
+
+### MFA Status Report
+
+```powershell
+# MFA status for all members
+.\scripts\Get-MFAStatusReport.ps1
+
+# Include guest users
+.\scripts\Get-MFAStatusReport.ps1 -IncludeGuests -ExportPath ".\reports\mfa.csv"
+```
+
+### Guest Access Audit
+
+```powershell
+# Audit guests with 90-day staleness threshold
+.\scripts\Get-GuestAccessAudit.ps1
+
+# Include group memberships (slower)
+.\scripts\Get-GuestAccessAudit.ps1 -StaleDays 60 -IncludeGroupMemberships -ExportPath ".\reports\guests.csv"
+```
+
+### Admin Role Report
+
+```powershell
+# Active role assignments
+.\scripts\Get-AdminRoleReport.ps1
+
+# Include PIM eligible roles
+.\scripts\Get-AdminRoleReport.ps1 -IncludePIM -ExportPath ".\reports\admin-roles.csv"
+```
+
+### Conditional Access
+
+```powershell
+# Report on enabled and report-only policies
+.\scripts\Get-ConditionalAccessReport.ps1
+
+# Include disabled policies
+.\scripts\Get-ConditionalAccessReport.ps1 -IncludeDisabled -ExportPath ".\reports\ca-policies.csv"
+
+# Backup all policies as JSON files
+.\scripts\Export-ConditionalAccessBackup.ps1
+
+# Backup to a specific directory including disabled
+.\scripts\Export-ConditionalAccessBackup.ps1 -OutputDirectory "C:\Backups\CA" -IncludeDisabled
+```
+
+### Teams Governance
+
+```powershell
+# Teams governance report
+.\scripts\Get-TeamsGovernanceReport.ps1
+
+# Custom inactivity threshold
+.\scripts\Get-TeamsGovernanceReport.ps1 -InactiveDays 60 -ExportPath ".\reports\teams.csv"
+```
+
+### User Offboarding
+
+```powershell
+# Preview offboarding (WhatIf)
+.\scripts\Invoke-UserOffboard.ps1 -UserPrincipalName "jsmith@contoso.com" -WhatIf
+
+# Offboard with mailbox conversion and forwarding
+.\scripts\Invoke-UserOffboard.ps1 -UserPrincipalName "jsmith@contoso.com" -ConvertToSharedMailbox -ForwardingAddress "manager@contoso.com"
+
+# Bulk offboarding from CSV
+.\scripts\Invoke-UserOffboard.ps1 -CsvPath ".\offboard-users.csv" -ConvertToSharedMailbox -LogPath ".\logs\offboard.log"
+```
+
 ## Project Structure
 
 ```
@@ -122,7 +216,15 @@ m365-admin-scripts/
 │   ├── Get-MailboxPermissionAudit.ps1
 │   ├── New-BulkUserOnboard.ps1
 │   ├── Get-InactiveUserReport.ps1
-│   └── Get-TransportRuleReport.ps1
+│   ├── Get-TransportRuleReport.ps1
+│   ├── Get-ServiceHealthDashboard.ps1
+│   ├── Get-MFAStatusReport.ps1
+│   ├── Get-GuestAccessAudit.ps1
+│   ├── Get-AdminRoleReport.ps1
+│   ├── Get-ConditionalAccessReport.ps1
+│   ├── Export-ConditionalAccessBackup.ps1
+│   ├── Get-TeamsGovernanceReport.ps1
+│   └── Invoke-UserOffboard.ps1
 ├── docs/
 │   └── SETUP.md
 ├── examples/
@@ -134,7 +236,7 @@ m365-admin-scripts/
 
 ## Notes
 
-- All destructive operations support `-WhatIf` and require confirmation
+- All destructive operations (`New-BulkUserOnboard`, `Invoke-UserOffboard`) support `-WhatIf` and require confirmation
 - Designed for multi-tenant MSP use — disconnect and reconnect between tenants
 - No client data, credentials, or tenant-specific information is included
 - Tested against Exchange Online Management v3.x and Graph SDK v2.x
