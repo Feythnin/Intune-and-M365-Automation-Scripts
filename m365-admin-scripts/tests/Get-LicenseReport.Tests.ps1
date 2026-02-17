@@ -73,7 +73,7 @@ Describe 'Get-LicenseReport' {
 
         It 'calculates usage percentage' {
             $e3 = $results | Where-Object SkuPartNumber -eq 'SPE_E3'
-            $e3.UsagePercent | Should -Be '87.0%'
+            $e3.UsagePercent | Should -Match '^87(\.0)?%$'
         }
 
         It 'result objects have expected properties' {

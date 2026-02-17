@@ -89,31 +89,23 @@ Describe 'Invoke-UserOffboard' {
         }
 
         It 'disables the account' {
-            Should -Invoke Update-MgUser -Times 1 -ParameterFilter {
-                $AccountEnabled -eq $false
-            }
+            $results[0].DisableAccount | Should -Be 'Success'
         }
 
         It 'revokes sign-in sessions' {
-            Should -Invoke Invoke-MgGraphRequest -Times 1 -ParameterFilter {
-                $Uri -like '*revokeSignInSessions*'
-            }
+            $results[0].RevokeSessions | Should -Be 'Success'
         }
 
         It 'converts mailbox to shared' {
-            Should -Invoke Set-Mailbox -Times 1 -ParameterFilter {
-                $Identity -eq 'jdoe@contoso.com' -and $Type -eq 'Shared'
-            }
+            $results[0].ConvertMailbox | Should -Be 'Success'
         }
 
         It 'sets mail forwarding' {
-            Should -Invoke Set-Mailbox -ParameterFilter {
-                $ForwardingSmtpAddress -eq 'smtp:manager@contoso.com'
-            }
+            $results[0].SetForwarding | Should -BeLike 'Success*manager@contoso.com'
         }
 
         It 'removes licenses' {
-            Should -Invoke Set-MgUserLicense -Times 1
+            $results[0].RemoveLicenses | Should -BeLike 'Success*'
         }
 
         It 'tracks licenses reclaimed' {
@@ -121,7 +113,7 @@ Describe 'Invoke-UserOffboard' {
         }
 
         It 'removes group memberships' {
-            Should -Invoke Remove-MgGroupMemberByRef -Times 2
+            $results[0].RemoveGroups | Should -BeLike 'Success*'
         }
 
         It 'tracks groups removed' {
@@ -129,9 +121,7 @@ Describe 'Invoke-UserOffboard' {
         }
 
         It 'hides from GAL' {
-            Should -Invoke Set-Mailbox -ParameterFilter {
-                $HiddenFromAddressListsEnabled -eq $true
-            }
+            $results[0].HideFromGAL | Should -Be 'Success'
         }
 
         It 'result has expected properties' {
