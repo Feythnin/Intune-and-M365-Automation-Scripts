@@ -111,7 +111,7 @@ try {
 
                 $allResults.Add([PSCustomObject]@{
                     ProfileName    = $profile.displayName
-                    ProfileType    = $profile.'@odata.type' -replace '#microsoft.graph.', ''
+                    ProfileType    = ($profile.'@odata.type' -replace '#microsoft\.graph\.', '')
                     DeviceName     = $status.deviceDisplayName
                     UserPrincipal  = $status.userPrincipalName
                     Status         = $state
@@ -122,7 +122,7 @@ try {
 
             $profileSummaries.Add([PSCustomObject]@{
                 ProfileName    = $profile.displayName
-                ProfileType    = $profile.'@odata.type' -replace '#microsoft.graph.', ''
+                ProfileType    = ($profile.'@odata.type' -replace '#microsoft\.graph\.', '')
                 TotalDevices   = $statuses.Count
                 Succeeded      = $succeeded
                 Error          = $errors
