@@ -23,6 +23,8 @@ function Invoke-ScriptUnderTest {
 
     $scriptContent = Get-Content -Path $ScriptPath -Raw
     $cleaned = $scriptContent -replace '(?m)^#Requires\s+-Modules.*$', '# [Removed by test harness] Requires -Modules'
+    # Replace exit calls with return so the script doesn't terminate the test session
+    $cleaned = $cleaned -replace '(?m)^\s*exit\s+\d+', '    return'
 
     $tempFile = [System.IO.Path]::Combine([System.IO.Path]::GetTempPath(), "Test_$([System.IO.Path]::GetFileName($ScriptPath))")
 

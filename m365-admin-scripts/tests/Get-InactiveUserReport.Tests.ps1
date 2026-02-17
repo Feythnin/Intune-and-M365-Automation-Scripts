@@ -6,6 +6,10 @@ BeforeAll {
 Describe 'Get-InactiveUserReport' {
 
     BeforeAll {
+        # Define stubs for Graph cmdlets (not installed on CI runners)
+        function Get-MgContext { }
+        function Get-MgUser { }
+
         Mock Get-MgContext { [PSCustomObject]@{ TenantId = 'test-tenant-id' } }
 
         # Mixed test users: active, inactive, never-signed-in, guest

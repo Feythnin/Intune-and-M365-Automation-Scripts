@@ -6,6 +6,10 @@ BeforeAll {
 Describe 'Get-LicenseReport' {
 
     BeforeAll {
+        # Define stubs for Graph cmdlets (not installed on CI runners)
+        function Get-MgContext { }
+        function Get-MgSubscribedSku { }
+
         Mock Get-MgContext { [PSCustomObject]@{ TenantId = 'test-tenant-id' } }
 
         Mock Get-MgSubscribedSku {

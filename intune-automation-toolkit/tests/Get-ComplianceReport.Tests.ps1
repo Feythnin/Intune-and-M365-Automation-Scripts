@@ -6,6 +6,10 @@ BeforeAll {
 Describe 'Get-ComplianceReport' {
 
     BeforeAll {
+        # Define stubs for Graph cmdlets (not installed on CI runners)
+        function Get-MgContext { }
+        function Get-MgDeviceManagementManagedDevice { }
+
         # Mock Graph context check
         Mock Get-MgContext { [PSCustomObject]@{ TenantId = 'test-tenant-id' } }
 

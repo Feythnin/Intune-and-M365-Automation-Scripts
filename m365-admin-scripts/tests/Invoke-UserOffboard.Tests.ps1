@@ -6,6 +6,17 @@ BeforeAll {
 Describe 'Invoke-UserOffboard' {
 
     BeforeAll {
+        # Define stubs for Graph/Exchange cmdlets (not installed on CI runners)
+        function Get-MgContext { }
+        function Get-OrganizationConfig { }
+        function Get-MgUser { }
+        function Update-MgUser { }
+        function Invoke-MgGraphRequest { }
+        function Set-Mailbox { }
+        function Set-MgUserLicense { }
+        function Get-MgUserMemberOf { }
+        function Remove-MgGroupMemberByRef { }
+
         # Mock Graph context check
         Mock Get-MgContext { [PSCustomObject]@{ TenantId = 'test-tenant-id' } }
 
