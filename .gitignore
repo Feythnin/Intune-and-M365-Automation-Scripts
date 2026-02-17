@@ -5,7 +5,7 @@ logs/
 # Reports and exports
 reports/
 *.csv
-!examples/*.csv
+!**/examples/*.csv
 
 # Credentials and secrets
 *.env
