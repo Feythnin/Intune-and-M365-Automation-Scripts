@@ -6,6 +6,8 @@ A collection of PowerShell scripts for managing Microsoft 365 environments, cove
 
 M365 admin tasks are repetitive and error-prone when done manually through the portal. These scripts automate the most common workflows — mailbox auditing, license reporting, MFA compliance, Conditional Access documentation, Teams governance, bulk user operations, and offboarding — so you can manage tenants in minutes instead of hours.
 
+![License Report Output](images/license-report-output.svg)
+
 ## Requirements
 
 - PowerShell 7+

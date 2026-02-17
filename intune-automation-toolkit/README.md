@@ -6,6 +6,8 @@ A collection of PowerShell scripts for managing and automating Microsoft Intune 
 
 Clicking through the Intune portal works fine for one device. It doesn't work when you're managing hundreds of endpoints across multiple organizations. These scripts automate the repetitive tasks that eat up an admin's day — compliance reporting, stale device cleanup, app deployment tracking, configuration profile auditing, patch compliance, encryption status, and Autopilot management.
 
+![Compliance Report Output](images/compliance-report-output.svg)
+
 ## Requirements
 
 - PowerShell 7+

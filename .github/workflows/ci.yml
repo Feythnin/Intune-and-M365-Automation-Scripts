@@ -1,0 +1,76 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Pester and PSScriptAnalyzer
+        shell: pwsh
+        run: |
+          Set-PSRepository PSGallery -InstallationPolicy Trusted
+          Install-Module -Name Pester -MinimumVersion 5.5.0 -Force -Scope CurrentUser
+          Install-Module -Name PSScriptAnalyzer -Force -Scope CurrentUser
+
+      - name: Run PSScriptAnalyzer
+        shell: pwsh
+        run: |
+          $scripts = Get-ChildItem -Path . -Filter '*.ps1' -Recurse |
+              Where-Object { $_.FullName -notmatch '[/\\]tests[/\\]' }
+
+          $results = $scripts | ForEach-Object {
+              Invoke-ScriptAnalyzer -Path $_.FullName -Severity @('Error', 'Warning')
+          }
+
+          if ($results) {
+              $results | Format-Table -AutoSize
+              $errors = $results | Where-Object Severity -eq 'Error'
+              if ($errors) {
+                  Write-Error "PSScriptAnalyzer found $($errors.Count) error(s)."
+                  exit 1
+              } else {
+                  Write-Warning "PSScriptAnalyzer found $($results.Count) warning(s) (non-blocking)."
+              }
+          } else {
+              Write-Host "PSScriptAnalyzer: No issues found." -ForegroundColor Green
+          }
+
+      - name: Run Pester tests — Intune Automation Toolkit
+        shell: pwsh
+        run: |
+          $config = New-PesterConfiguration
+          $config.Run.Path = 'intune-automation-toolkit/tests'
+          $config.Output.Verbosity = 'Detailed'
+          $config.TestResult.Enabled = $true
+          $config.TestResult.OutputPath = 'intune-test-results.xml'
+          $config.TestResult.OutputFormat = 'NUnitXml'
+          Invoke-Pester -Configuration $config
+
+      - name: Run Pester tests — M365 Admin Scripts
+        shell: pwsh
+        run: |
+          $config = New-PesterConfiguration
+          $config.Run.Path = 'm365-admin-scripts/tests'
+          $config.Output.Verbosity = 'Detailed'
+          $config.TestResult.Enabled = $true
+          $config.TestResult.OutputPath = 'm365-test-results.xml'
+          $config.TestResult.OutputFormat = 'NUnitXml'
+          Invoke-Pester -Configuration $config
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: |
+            intune-test-results.xml
+            m365-test-results.xml
